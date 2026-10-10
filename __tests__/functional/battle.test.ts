@@ -19,7 +19,7 @@ import BattleStatusEnum from "../../src/domain/battle/enums/battle-status.enum";
 import BattleStatus from "../../src/domain/battle/value-objects/battle-status.vo";
 
 
-class BattleMoveUseCase implements BattleUpdtedUseCaseInterface{
+class BattleMoveUseCase implements BattleUpdtedUseCaseInterface {
     private counter = 0;
 
     private _battle: BattleEntity | null = null;
