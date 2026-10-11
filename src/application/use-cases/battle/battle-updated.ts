@@ -17,7 +17,7 @@ export class BattleUpdatedUseCase implements BattleUpdtedUseCaseInterface {
     ) {
     }
 
-    async execute(battle: battleEntity): Promise<void> {
+    async execute(battle: battleEntity, inReplyToId: string): Promise<void> {
 
         const profile = await this.profileService.fetchProfile();
 
@@ -27,7 +27,7 @@ export class BattleUpdatedUseCase implements BattleUpdtedUseCaseInterface {
             });
             // logger.log('message moved to start')
 
-            this.jobService.enqueue(this.websocketSendEventTopic, req);
+            this.jobService.enqueue(this.websocketSendEventTopic, {request: req, inReplyToId});
 
             return;
         }
@@ -45,7 +45,7 @@ export class BattleUpdatedUseCase implements BattleUpdtedUseCaseInterface {
                 move: BattleMoveProtoMapper.toProto(battleMove)
             });
 
-            this.jobService.enqueue(this.websocketSendEventTopic, req);
+            this.jobService.enqueue(this.websocketSendEventTopic, {request: req, inReplyToId});
             logger.log('message moved to pgBoss')
 
         } catch (err) {

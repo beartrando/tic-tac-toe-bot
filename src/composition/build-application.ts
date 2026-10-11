@@ -33,6 +33,9 @@ import FetchProfileUseCase from "../application/use-cases/profile/fetch-profile"
 import ConnectToBattleUseCase from "../application/use-cases/battle/connect-to-battle";
 import ConnectingBattleRequestConsumer from "../infrastructure/message/consumers/connecting-battle-request";
 import RefreshTokensUseCase from "../application/use-cases/auth/refresh-tokens";
+import DbService from "../infrastructure/db/service";
+import PrismaKafkaPacketRepository from "../infrastructure/db/repositories/prisma-kafka-packet.repository";
+import PrismaWebsocketMessageRepository from "../infrastructure/db/repositories/prisma-websocket-message.repository";
 
 
 function buildApplication() {
@@ -42,6 +45,10 @@ function buildApplication() {
         httpClientConfig.host,
         httpClientConfig.port,
     );
+
+    const dbService = new DbService();
+    const kafkaPacketRepository = new PrismaKafkaPacketRepository(dbService.client);
+    const websocketMessageRepository = new PrismaWebsocketMessageRepository(dbService.client);
 
     const deviceId = new DeviceDeviceId(domainBattleConfig.deviceId);
     const anonimousSignInUseCase = new AnonymousSignInUseCase(httpService);
@@ -63,19 +70,20 @@ function buildApplication() {
     );
 
     const battleMoveUseCase = new BattleUpdatedUseCase(profileService, jobService, jobConsumersConfig.websocketSendEvent);
-    const battleHandler = new BattleHandler(battleMoveUseCase);
+    const battleHandler = new BattleHandler(battleMoveUseCase, websocketMessageRepository);
 
     const websocketClient = new WebsocketClient(
         authService,
         profileService,
         websocketClientConfig,
-        battleHandler
+        battleHandler,
+        websocketMessageRepository,
     );
 
     const websocketClientService = new WebsocketClientService(websocketClient);
 
     const connectToBattleUseCase = new ConnectToBattleUseCase(jobService, jobConsumersConfig.websocketSendEvent);
-    const connectingBattleRequestConsumer = new ConnectingBattleRequestConsumer(connectToBattleUseCase);
+    const connectingBattleRequestConsumer = new ConnectingBattleRequestConsumer(connectToBattleUseCase, kafkaPacketRepository);
 
     const sendToStreamConsumer = new SendToStreamConsumer(websocketClientService);
 

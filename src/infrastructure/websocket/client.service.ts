@@ -24,12 +24,12 @@ export class WebsocketClientService {
         return ws;
     }
 
-    async send(message: any): Promise<void> {
+    async send(message: any, inReplyToId: string | null = null): Promise<void> {
         if (!(await this.check())) {
             throw new Error("WebSocket is not connected");
         }
 
-        await this.websocketClient.send(message);
+        await this.websocketClient.send(message, inReplyToId);
     }
 
     async check(): Promise<boolean> {

@@ -17,6 +17,12 @@ import BattleEntity from "../../src/domain/battle/battle.entity";
 import BattleUpdtedUseCaseInterface from "../../src/infrastructure/websocket/handlers/battle-updted-use-case-interface";
 import BattleStatusEnum from "../../src/domain/battle/enums/battle-status.enum";
 import BattleStatus from "../../src/domain/battle/value-objects/battle-status.vo";
+import WebsocketMessageRepositoryInterface from "../../src/infrastructure/db/repositories/interfaces/websocket-message-repository.interface";
+
+
+const websocketMessageRepositoryStub: WebsocketMessageRepositoryInterface = {
+    save: async () => "stub-websocket-message-id",
+};
 
 
 class BattleMoveUseCase implements BattleUpdtedUseCaseInterface {
@@ -36,7 +42,7 @@ class BattleMoveUseCase implements BattleUpdtedUseCaseInterface {
         this.counter = 0;
     }
 
-    async execute(battle: BattleEntity): Promise<void> {
+    async execute(battle: BattleEntity, inReplyToId: string): Promise<void> {
         // console.log('Message received');
         this._battle = battle;
         // console.log(message);
@@ -104,20 +110,22 @@ describe("Gateway Service", () => {
         const profileService2 = new ProfileService(authService2, fetchProfileUseCase);
 
         const battleMoveUseCase = new BattleMoveUseCase();
-        const battleHandler = new BattleHandler(battleMoveUseCase);
+        const battleHandler = new BattleHandler(battleMoveUseCase, websocketMessageRepositoryStub);
 
         const websocketClient1 = new WebsocketClient(
             authService1,
             profileService1,
             websocketClientConfig,
-            battleHandler
+            battleHandler,
+            websocketMessageRepositoryStub,
         );
 
         const websocketClient2 = new WebsocketClient(
             authService2,
             profileService2,
             websocketClientConfig,
-            battleHandler
+            battleHandler,
+            websocketMessageRepositoryStub,
         );
 
         const websocketService1 = new WebsocketClientService(websocketClient1);

@@ -1,8 +1,11 @@
 import WebSocket from "ws";
+import {WebsocketMessageDirection} from "@prisma/client";
 import * as streamingProto from "../../contracts/proto/streaming";
 import logger from "@shared/logger";
 import WebsocketClientConfig from "./types/websocket-client-config";
 import WebsocketClientHandlerInterface from "./interfaces/websocket-client-handler.interface";
+import WebsocketMessageRepositoryInterface from "../db/repositories/interfaces/websocket-message-repository.interface";
+import {battleRequestInfo} from "./mappers/websocket-message.mapper";
 import AuthService from "../auth/service";
 import ProfileService from "../profile/service";
 
@@ -16,6 +19,7 @@ class WebsocketClient {
         private readonly profileService: ProfileService,
         private readonly websocketClientConfig: WebsocketClientConfig,
         private readonly websocketClientHandler: WebsocketClientHandlerInterface,
+        private readonly websocketMessageRepository: WebsocketMessageRepositoryInterface,
     ) {
     }
 
@@ -85,7 +89,7 @@ class WebsocketClient {
         this.cancelReconnect();
     }
 
-    send = async (message: streamingProto.BattleRequest): Promise<void> => {
+    send = async (message: streamingProto.BattleRequest, inReplyToId: string | null = null): Promise<void> => {
         const ws = await this.getWs();
         if (!ws || ws.readyState !== WebSocket.OPEN) {
             console.error("⚠️ WebSocket not ready:", ws?.readyState);
@@ -93,6 +97,8 @@ class WebsocketClient {
         }
 
         try {
+            const {type, battleId} = battleRequestInfo(message);
+            await this.websocketMessageRepository.save(WebsocketMessageDirection.sent, battleId, type, JSON.stringify(message), inReplyToId);
             // logger.log(message);
             ws.send(streamingProto.BattleRequest.encode(message).finish());
         } catch (err) {

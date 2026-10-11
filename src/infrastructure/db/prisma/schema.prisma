@@ -8,3 +8,33 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DATABASE_DIRECT_URL")
 }
+
+enum WebsocketMessageDirection {
+  received
+  sent
+}
+
+model KafkaPacket {
+  id        String   @id @default(uuid())
+  topic     String   @map("topic")
+  partition Int      @map("partition")
+  battleId  String   @map("battle_id")
+  payload   String   @map("payload")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("kafka_packets")
+}
+
+model WebsocketMessage {
+  id          String                   @id @default(uuid())
+  direction   WebsocketMessageDirection @map("direction")
+  battleId    String?                  @map("battle_id")
+  type        String                   @map("type")
+  payload     String                   @map("payload")
+  inReplyToId String?                  @map("in_reply_to_id")
+  inReplyTo   WebsocketMessage?        @relation("WebsocketMessageReplies", fields: [inReplyToId], references: [id])
+  replies     WebsocketMessage[]       @relation("WebsocketMessageReplies")
+  createdAt   DateTime                 @default(now()) @map("created_at")
+
+  @@map("websocket_messages")
+}
