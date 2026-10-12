@@ -69,6 +69,24 @@ class BattleMoveUseCase implements BattleUpdtedUseCaseInterface {
             await new Promise(resolve => setTimeout(resolve, interval));
         }
     }
+
+    async waitForStatus(
+        expectedStatus: BattleStatusEnum,
+        timeout = 10000,
+        interval = 100,
+    ): Promise<void> {
+        const startedAt = Date.now();
+
+        while (this._battle?.status.value !== expectedStatus) {
+            if (Date.now() - startedAt >= timeout) {
+                throw new Error(
+                    `Timeout waiting for status ${expectedStatus}. Current status: ${this._battle?.status.value}`,
+                );
+            }
+
+            await new Promise(resolve => setTimeout(resolve, interval));
+        }
+    }
 }
 
 
@@ -202,7 +220,10 @@ describe("Gateway Service", () => {
         req.move!.cellIdx = 8;
 
         await websocketService1.send(req);
-        await battleMoveUseCase.waitForCounter(17);
+
+        // engine транслирует состояние с дублями (по broadcast на каждый start-запрос),
+        // поэтому финальное событие ждём по статусу, а не по фиксированному счётчику
+        await battleMoveUseCase.waitForStatus(BattleStatusEnum.Finished);
 
         // console.log(battleMoveUseCase.battle);
 
