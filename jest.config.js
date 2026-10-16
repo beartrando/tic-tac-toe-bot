@@ -1,7 +1,11 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    testPathIgnorePatterns: ['/node_modules/', '<rootDir>/__tests__/'],
+    roots: ['<rootDir>/src'],
     coverageDirectory: 'coverage',
-    testMatch: ['*.spec.ts'],
+    testMatch: ['**/*.spec.ts'],
+    compilerOptions: {
+        "types": ["jest", "node"],
+        "isolatedModules": true
+    }
 };
