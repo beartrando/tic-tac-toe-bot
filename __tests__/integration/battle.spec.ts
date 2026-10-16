@@ -68,7 +68,7 @@ class BattleMoveUseCase implements BattleUpdtedUseCaseInterface {
 
 describe("Gateway Service", () => {
 
-    test("Game story functional", async () => {
+    test("Game story integration", async () => {
 
         const deviceId1 = new DeviceDeviceId(`device1-${Math.random().toString(36).substring(2, 8)}`);
         const deviceId2 = new DeviceDeviceId(`device2-${Math.random().toString(36).substring(2, 8)}`);

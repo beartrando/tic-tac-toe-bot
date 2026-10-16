@@ -12,7 +12,8 @@
     "migrate:deploy": "prisma migrate deploy",
     "migrate:reset": "prisma migrate reset",
     "seed": "tsx src/infrastructure/db/seeds/seed.ts",
-    "test": "jest"
+    "test": "jest",
+    "test:integration": "jest --config __tests__/jest.integration.config.js"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
