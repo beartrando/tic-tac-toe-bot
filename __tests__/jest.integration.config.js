@@ -3,5 +3,4 @@ module.exports = {
     rootDir: '..',
     roots: ['<rootDir>/__tests__'],
     testMatch: ['<rootDir>/__tests__/integration/**/*.spec.ts'],
-    testPathIgnorePatterns: ['/node_modules/'],
 };
