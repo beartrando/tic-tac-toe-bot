@@ -5,5 +5,3 @@ module.exports = {
     coverageDirectory: 'coverage',
     testMatch: ['*.spec.ts'],
 };
-
-
