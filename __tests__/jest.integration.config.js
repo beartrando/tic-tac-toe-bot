@@ -1,16 +1,6 @@
-const path = require('path');
-
 module.exports = {
     ...require('../jest.config.js'),
-    rootDir: path.resolve(__dirname, '..'),
-    testPathIgnorePatterns: ['/node_modules/'],
+    rootDir: '..',
+    roots: ['<rootDir>/__tests__'],
     testMatch: ['<rootDir>/__tests__/integration/**/*.spec.ts'],
-    transform: {
-        '^.+\\.tsx?$': [
-            'ts-jest',
-            {
-                tsconfig: 'tsconfig.test.json',
-            },
-        ],
-    },
 };
