@@ -1,12 +1,9 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    transform: {
-        '^.+\\.tsx?$': [
-            'ts-jest',
-            {
-                tsconfig: 'tsconfig.test.json',
-            },
-        ],
-    },
+    testPathIgnorePatterns: ['/node_modules/', '<rootDir>/__tests__/'],
+    coverageDirectory: 'coverage',
+    testMatch: ['*.spec.ts'],
 };
+
+
