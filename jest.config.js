@@ -2,10 +2,11 @@ module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
     roots: ['<rootDir>/src'],
-    coverageDirectory: 'coverage',
     testMatch: ['**/*.spec.ts'],
-    compilerOptions: {
-        "types": ["jest", "node"],
-        "isolatedModules": true
-    }
+    coverageDirectory: 'coverage',
+    transform: {
+        '^.+\\.tsx?$': ['ts-jest', {
+            tsconfig: 'tsconfig.test.json',
+        }],
+    },
 };
