@@ -43,6 +43,7 @@
     "@shared/pg-boss-manager": "workspace:*",
     "@shared/logger": "workspace:*",
     "@shared/errors": "workspace:*",
+    "@shared/elastic": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "jsonwebtoken": "^9.0.3",

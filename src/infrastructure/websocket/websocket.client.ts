@@ -1,10 +1,12 @@
 import WebSocket from "ws";
 import * as streamingProto from "../../contracts/proto/streaming";
 import logger from "@shared/logger";
+import {extractTrackId, type MessageLogger} from "@shared/elastic";
 import WebsocketClientConfig from "./types/websocket-client-config";
 import WebsocketClientHandlerInterface from "./interfaces/websocket-client-handler.interface";
 import AuthService from "../auth/service";
 import ProfileService from "../profile/service";
+import {BATTLE_WS_ROUTE} from "./websocket.constants";
 
 class WebsocketClient {
     private ws: WebSocket | null = null;
@@ -16,6 +18,7 @@ class WebsocketClient {
         private readonly profileService: ProfileService,
         private readonly websocketClientConfig: WebsocketClientConfig,
         private readonly websocketClientHandler: WebsocketClientHandlerInterface,
+        private readonly messageLogger?: MessageLogger,
     ) {
     }
 
@@ -93,6 +96,13 @@ class WebsocketClient {
         }
 
         try {
+            void this.messageLogger?.logOut(
+                'websocket',
+                BATTLE_WS_ROUTE,
+                message,
+                extractTrackId(message),
+            );
+
             // logger.log(message);
             ws.send(streamingProto.BattleRequest.encode(message).finish());
         } catch (err) {
