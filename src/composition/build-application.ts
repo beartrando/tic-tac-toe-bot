@@ -33,14 +33,22 @@ import FetchProfileUseCase from "../application/use-cases/profile/fetch-profile"
 import ConnectToBattleUseCase from "../application/use-cases/battle/connect-to-battle";
 import ConnectingBattleRequestConsumer from "../infrastructure/message/consumers/connecting-battle-request";
 import RefreshTokensUseCase from "../application/use-cases/auth/refresh-tokens";
+import {ElasticService, MessageLogger} from "@shared/elastic";
+import elasticConfig from "../infrastructure/elastic/elastic.config";
+import messagesConfig from "../infrastructure/elastic/messages.config";
 
 
 function buildApplication() {
 
+    // Elasticsearch: транспортные сообщения (in/out)
+    const elasticService = new ElasticService(elasticConfig);
+
+    const messageLogger = new MessageLogger(elasticService, messagesConfig);
 
     const httpService = new HttpClient(
         httpClientConfig.host,
         httpClientConfig.port,
+        messageLogger,
     );
 
     const deviceId = new DeviceDeviceId(domainBattleConfig.deviceId);
@@ -55,21 +63,24 @@ function buildApplication() {
         jobConfig,
         messageConfig,
         messageProducersConfig,
+        messageLogger,
     );
 
     const messageService = new MessageService(
         messageConfig,
         messageConsumersConfig,
+        messageLogger,
     );
 
     const battleMoveUseCase = new BattleUpdatedUseCase(profileService, jobService, jobConsumersConfig.websocketSendEvent);
-    const battleHandler = new BattleHandler(battleMoveUseCase);
+    const battleHandler = new BattleHandler(battleMoveUseCase, messageLogger);
 
     const websocketClient = new WebsocketClient(
         authService,
         profileService,
         websocketClientConfig,
-        battleHandler
+        battleHandler,
+        messageLogger,
     );
 
     const websocketClientService = new WebsocketClientService(websocketClient);
@@ -118,6 +129,7 @@ function buildApplication() {
         jobService,
         messageService,
         websocketClientService,
+        elasticService,
     );
 }
 
