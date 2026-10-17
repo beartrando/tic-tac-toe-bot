@@ -56,7 +56,6 @@ RUN pnpm --filter bot prisma:generate
 FROM deps AS dev
 
 COPY services/bot/tsconfig.test.json ./services/bot/
-COPY services/bot/__tests__ ./services/bot/__tests__/
 
 ENV NODE_ENV=development
 
